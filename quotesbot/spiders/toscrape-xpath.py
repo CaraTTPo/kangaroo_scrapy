@@ -48,7 +48,7 @@ class ToScrapeSpiderXPath(scrapy.Spider):
         self.start_urls = []
         items = requests.get(self.items_url).json()['data']
         #items = [589320166593,599102513060,608191533062,605583515492,593095297666,600401864239,595664445560,590973381653,609926308012]
-        for items in items:
+        for item in items:
             item_id = items['itemId']
             self.start_urls.append(self.product_str.format(item_id=item_id))
         self.tagRule = {}
@@ -58,6 +58,18 @@ class ToScrapeSpiderXPath(scrapy.Spider):
         # for tagRule in self.tagRuleList:
         #     self.tagRule[tagRule['shopId']] = tagRule['tagRule']
         super(ToScrapeSpiderXPath, self).__init__()
+
+    # def __init__(self):
+    #     self.start_urls = []
+    #     with open('/Users/wuting/Downloads/taobao_new/item_ids.csv') as f:
+    #         items =[line.strip() for line in f.readlines()]
+    #         #items = [589320166593,599102513060,608191533062,605583515492,593095297666,600401864239,595664445560,590973381653,609926308012]
+    #     for item_id in items:
+    #         self.start_urls.append(self.product_str.format(item_id=item_id))
+    #     self.tagRule = {}
+    #     for tagRule in self.tagRuleList:
+    #         self.tagRule[tagRule['shopId']] = tagRule['tagRule']
+    #     super(ToScrapeSpiderXPath, self).__init__()
 
     def parse(self, response):
         jsonresponse = json.loads(response.body_as_unicode())
@@ -72,6 +84,7 @@ class ToScrapeSpiderXPath(scrapy.Spider):
             item['deleted'] = True
             item['itemId'] = itemId
             yield item
+            return
 
         itemName = jsonresponse['data']['item']['title']
         itemId = jsonresponse['data']['item']['itemId']
