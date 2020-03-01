@@ -46,13 +46,13 @@ class ToScrapeSpiderXPath(scrapy.Spider):
     tagRule_url = "http://111.231.110.192:8080/product/store"
     def __init__(self):
         self.start_urls = []
-        items = requests.get(self.items_url).json()['data']
-        #items = [589320166593,599102513060,608191533062,605583515492,593095297666,600401864239,595664445560,590973381653,609926308012]
+        #items = requests.get(self.items_url).json()['data']
+        items = [589320166593,599102513060,608191533062,605583515492,593095297666,600401864239,595664445560,590973381653,609926308012]
         for item in items:
-            item_id = items['itemId']
+            item_id = item #s['itemId']
             self.start_urls.append(self.product_str.format(item_id=item_id))
         self.tagRule = {}
-        tagRules = requests.get(self.tagRule_url).json()['data']
+        tagRules = self.tagRuleList #requests.get(self.tagRule_url).json()['data']
         for tagRule in tagRules:
             self.tagRule[str(tagRule['shopId'])] = tagRule['tagRule']
         # for tagRule in self.tagRuleList:
