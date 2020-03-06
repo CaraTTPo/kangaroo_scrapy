@@ -5,10 +5,35 @@ Topic: 中间件集合
 Desc : 
 """
 import random
+import requests
 import logging
 from scrapy.downloadermiddlewares.useragent import UserAgentMiddleware
 
 logger = logging.getLogger(__name__)
+
+import base64
+
+# 代理服务器
+proxyServer = "http://http-dyn.abuyun.com:9020"
+
+# 代理隧道验证信息
+proxyUser = "HM5852S248KGC1ID"
+proxyPass = "CF44743E10EDE59D"
+
+# for Python2
+#proxyAuth = "Basic " + base64.b64encode(proxyUser + ":" + proxyPass)
+
+# for Python3
+proxyAuth = "Basic " + base64.urlsafe_b64encode(bytes((proxyUser + ":" + proxyPass), "ascii")).decode("utf8")
+proxyUrl = "http://dynamic.goubanjia.com/dynamic/get/20b2ad61b457a85521543e7d5c3e954c.html?sep=3&random=true"
+
+class ProxyMiddleware(object):
+    #def process_request(self, request, spider):
+    #    request.meta["proxy"] = proxyServer
+    #    request.headers["Proxy-Authorization"] = proxyAuth  
+    def process_request(self, request, spider):
+        proxyRes = requests.get(proxyUrl)
+        request.meta["proxy"] = "http://"+proxyRes.text.strip()
 
 
 class RotateUserAgentMiddleware(UserAgentMiddleware):

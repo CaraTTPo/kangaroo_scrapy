@@ -27,7 +27,7 @@ ROBOTSTXT_OBEY = True
 # Configure a delay for requests for the same website (default: 0)
 # See http://scrapy.readthedocs.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-DOWNLOAD_DELAY = 10
+DOWNLOAD_DELAY = 1
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN = 16
 #CONCURRENT_REQUESTS_PER_IP = 16
@@ -46,8 +46,9 @@ DOWNLOAD_DELAY = 10
 
 DOWNLOADER_MIDDLEWARES = {
     # 这里是下载中间件
-    'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
+    #'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
     'quotesbot.middlewares.RotateUserAgentMiddleware': 400,
+    'quotesbot.middlewares.ProxyMiddleware':750
 }
 
 # Enable or disable spider middlewares
