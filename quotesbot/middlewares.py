@@ -25,7 +25,8 @@ proxyPass = "CF44743E10EDE59D"
 
 # for Python3
 proxyAuth = "Basic " + base64.urlsafe_b64encode(bytes((proxyUser + ":" + proxyPass), "ascii")).decode("utf8")
-proxyUrl = "http://dynamic.goubanjia.com/dynamic/get/20b2ad61b457a85521543e7d5c3e954c.html?sep=3&random=true"
+#proxyUrl = "http://dynamic.goubanjia.com/dynamic/get/20b2ad61b457a85521543e7d5c3e954c.html?sep=3&random=true"
+proxyUrl = "http://dynamic.goubanjia.com/dynamic/get/b5561da79732b1424cbfe304e0a1bb04.html?sep=3&random=true"
 
 class ProxyMiddleware(object):
     #def process_request(self, request, spider):

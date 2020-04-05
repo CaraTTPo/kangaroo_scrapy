@@ -19,7 +19,7 @@ NEWSPIDER_MODULE = 'quotesbot.spiders'
 #USER_AGENT = 'quotesbot (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
+ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
@@ -31,6 +31,9 @@ DOWNLOAD_DELAY = 1
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN = 16
 #CONCURRENT_REQUESTS_PER_IP = 16
+
+RETRY_ENABLED = True
+RETRY_TIMES = 3
 
 # Disable cookies (enabled by default)
 #COOKIES_ENABLED = False

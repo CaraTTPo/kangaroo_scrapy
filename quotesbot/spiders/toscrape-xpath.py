@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import scrapy, json, datetime, csv, requests, re
 from quotesbot.items import QuotesbotItem
+from scrapy.http.request import Request
 
 class ToScrapeSpiderXPath(scrapy.Spider):
     name = 'toscrape-xpath'
@@ -44,20 +45,19 @@ class ToScrapeSpiderXPath(scrapy.Spider):
 # 上海澎澎电玩
     items_url = "http://111.231.110.192:8080/product/taobao"
     tagRule_url = "http://111.231.110.192:8080/product/store"
-    def __init__(self):
-        self.start_urls = []
+    start_urls = ["http://www.taobao.com"]
+    def parse(self, response):
         items = requests.get(self.items_url).json()['data']
-        items = [589320166593,599102513060,608191533062,605583515492,593095297666,600401864239,595664445560,590973381653,609926308012]
-        for item in items:
-            item_id = item #s['itemId']
-            self.start_urls.append(self.product_str.format(item_id=item_id))
+        #items = [595482361488]#595444936866] #589320166593,599102513060,608191533062,605583515492,593095297666,600401864239,595664445560,590973381653,609926308012]
         self.tagRule = {}
         tagRules = self.tagRuleList #requests.get(self.tagRule_url).json()['data']
         for tagRule in tagRules:
             self.tagRule[str(tagRule['shopId'])] = tagRule['tagRule']
         # for tagRule in self.tagRuleList:
         #     self.tagRule[tagRule['shopId']] = tagRule['tagRule']
-        super(ToScrapeSpiderXPath, self).__init__()
+        for item in items:
+            item_id = item['itemId']
+            yield Request(self.product_str.format(item_id=item_id),meta={'shopId':item['storeId']},callback=self.parse2)
 
     # def __init__(self):
     #     self.start_urls = []
@@ -71,7 +71,7 @@ class ToScrapeSpiderXPath(scrapy.Spider):
     #         self.tagRule[tagRule['shopId']] = tagRule['tagRule']
     #     super(ToScrapeSpiderXPath, self).__init__()
 
-    def parse(self, response):
+    def parse2(self, response):
         jsonresponse = json.loads(response.body_as_unicode())
         if not jsonresponse['data'].get('item'):
             try:
@@ -79,9 +79,10 @@ class ToScrapeSpiderXPath(scrapy.Spider):
             except:
                 print('errrrrror {}'.format(response.url))
                 return
-            print('商品下架了 https://h5.m.taobao.com/awp/core/detail.htm?id={}'.format(itemId))
+            print('item remove https://h5.m.taobao.com/awp/core/detail.htm?id={}'.format(itemId))
             item = QuotesbotItem()
             item['deleted'] = True
+            item['shopId'] = response.meta["shopId"]
             item['itemId'] = itemId
             yield item
             return
@@ -96,8 +97,13 @@ class ToScrapeSpiderXPath(scrapy.Spider):
         skuBase = jsonresponse["data"]["skuBase"]
         skuCore = detail["skuCore"]
         sku2info = skuCore["sku2info"]
+        #MockData = jsonresponse["data"]["mockData"]
+
+	#If mockData:
+        #    json.loads(mockData).get('skuCore', {}).get('sku2info', {})
+        
         skus = skuBase['skus']
-        print('商品 https://h5.m.taobao.com/awp/core/detail.htm?id={}'.format(itemId))
+        print('item get https://h5.m.taobao.com/awp/core/detail.htm?id={}'.format(itemId))
         if self.tagRule.get(str(shopId)):
             tagRule = json.loads(self.tagRule.get(shopId))
         else:
@@ -106,6 +112,10 @@ class ToScrapeSpiderXPath(scrapy.Spider):
 
         for sku in skus:
             skuId = sku["skuId"]
+            if sku2info:
+                quantity = sku2info.get(skuId,{}).get('quantity', 0)
+            else:
+                quantity = 0
             desc = {}
             sku_info_pri_quan = sku2info.get(skuId)
             if sku_info_pri_quan:
@@ -149,6 +159,6 @@ class ToScrapeSpiderXPath(scrapy.Spider):
             item['showTag'] = showTag #"带游戏壳" #展示标签
             item['itemUrl'] = "https://h5.m.taobao.com/awp/core/detail.htm?id={}".format(item['itemId']) #商品链接
             item['updateTime'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") # "2020-01-01 00:00:00" #爬虫更新时间
-            item['deleted'] = False
+            item['deleted'] = False if int(quantity)!=0 else True
             yield item
 
